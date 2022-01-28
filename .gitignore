@@ -1,0 +1,6 @@
+__pycache__/
+build/
+results/
+examples/results/
+face3d/mesh/cython/mesh_core_cython.cpp
+face3d/mesh/cython/mesh_core_cython.cpython-36m-x86_64-linux-gnu.so
