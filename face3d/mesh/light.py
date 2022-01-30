@@ -38,7 +38,6 @@ def get_normal(vertices, triangles):
     normal[zero_ind, 0] = np.ones((np.sum(zero_ind)))
 
     normal = normal/np.sqrt(mag[:,np.newaxis])
-
     return normal
 
 # TODO: test
@@ -73,7 +72,7 @@ def add_light_sh(vertices, triangles, colors, sh_coeff):
     return lit_colors
 
 
-def add_light(vertices, triangles, colors, light_positions = 0, light_intensities = 0):
+def add_light(vertices, triangles, colors, light_positions = 0, light_intensities = 0, flip_normal = False):
     ''' Gouraud shading. add point lights.
     In 3d face, usually assume:
     1. The surface of face is Lambertian(reflect only the low frequencies of lighting)
@@ -86,12 +85,14 @@ def add_light(vertices, triangles, colors, light_positions = 0, light_intensitie
         triangles: [ntri, 3]
         light_positions: [nlight, 3] 
         light_intensities: [nlight, 3]
+        flip_normal:boolean. if true, flip normal
     Returns:
         lit_colors: [nver, 3]
     '''
     nver = vertices.shape[0]
     normals = get_normal(vertices, triangles) # [nver, 3]
-
+    if flip_normal:
+        normals *= -1
     # ambient
     # La = ka*Ia
 
