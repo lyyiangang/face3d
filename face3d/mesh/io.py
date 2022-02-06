@@ -1,20 +1,50 @@
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
+from lib2to3.pgen2.token import tok_name
 
 import numpy as np
 import os
+from pandas import to_pickle
 from skimage import io
 from time import time
 
+from torch import triangular_solve
+
 from .cython import mesh_core_cython
 
-## TODO
-## TODO: c++ version
 def read_obj(obj_name):
-	''' read mesh
-	'''
-	return 0
+    ''' read mesh
+    '''
+    vertices = []
+    tris = []
+    for line in open(obj_name, 'r'):
+        line = line.strip()
+        if line[0] == '#':
+            continue
+        elif line.startswith('v '):
+            tokens = line.replace('v ', '').split(' ')
+            assert len(tokens) == 3, f'tokens:{tokens}'
+            # import ipdb;ipdb.set_trace()
+            vertices.append(tuple(eval(item) for item in tokens))
+        elif line.startswith('f '):
+            # line: f 25024/32062/23435 25025/32063/23436 25026/32064/23437 25027/32065/23438
+            tokens = line.replace('f ', '').split(' ')
+            cur_vertices = tuple(eval(t.split('/')[0]) - 1 for t in tokens)
+            # import ipdb;ipdb.set_trace()
+            if len(cur_vertices) == 3:
+                tris.append((cur_vertices[0], cur_vertices[1], cur_vertices[2]))
+            elif len(cur_vertices) == 4:
+                tris.append((cur_vertices[0], cur_vertices[1], cur_vertices[2]))
+                tris.append((cur_vertices[2], cur_vertices[3], cur_vertices[0]))
+            else:
+                assert f'Unknonw error'
+
+    result = {}
+    result['vertices']  = np.asarray(vertices)
+    result['tris'] = np.asarray(tris)
+    return result
+        
 
 # ------------------------- write
 def write_asc(path, vertices):

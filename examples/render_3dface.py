@@ -13,6 +13,23 @@ def display(raw_rgb_img):
     cv2.imshow('bgr_img', bgr_img)
     cv2.waitKey(0)
 
+def load_glasses_obj():
+    gls_file = 'Data/glasses/source/untitled29.obj'
+    gls_obj = mesh.io.read_obj(gls_file)
+    return gls_obj
+
+def merge_tris(tria, trib):
+    max_a = np.max(tria)
+    # import ipdb;ipdb.set_trace()
+    trib += (max_a + 1 )
+    return np.vstack([tria, trib])
+
+def merge_vertices(tria, trib):
+    return np.vstack([tria, trib])
+
+def merge_colors(tria, trib):
+    return np.vstack([tria, trib])
+
 def run():
     """
     world coordinate system:
@@ -49,6 +66,13 @@ def run():
     # s*X*R + t
     world_vertices = mesh.transform.similarity_transform(vertices, obj['s'], R, obj['t'])
 
+    # glasses_obj = load_glasses_obj()
+    # triangles = merge_tris(triangles, glasses_obj['tris'].astype(triangles.dtype))
+    # world_glasses = mesh.transform.similarity_transform(glasses_obj['vertices'], 100, np.eye(3), [0, 0, 0])
+    # world_vertices = merge_vertices(world_vertices, world_glasses.astype(np.float32))
+    # gls_colors = np.ones_like(world_glasses, dtype = np.float32)
+    # colors = merge_colors(colors, gls_colors)
+
     # define camera in world cs
     camera = {}
     camera['proj_type'] = 'orthographic' # perspective or orthographic
@@ -66,7 +90,7 @@ def run():
     # add 2 point lights
     # light_intensities = np.array([[1, 1, 1], [1, 1, 1]], dtype = np.float32)
     # light_positions = np.array([[300, 0, 300], [-300, 0, 300]])
-    colors = mesh.light.add_light(world_vertices, triangles, colors, light_positions, light_intensities)
+    colors = mesh.light.add_light(world_vertices, triangles, colors, light_positions, light_intensities, flip_normal= False)
 
     if camera['proj_type'] == 'orthographic':
         camera_vertices = mesh.transform.orthographic_project(world_vertices) # not normalized
